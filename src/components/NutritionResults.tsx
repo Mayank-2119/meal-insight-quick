@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Flame, Beef, Wheat, Droplet, Leaf, Candy, RotateCcw, CheckCircle2 } from "lucide-react";
 import { RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { addMeal } from "@/lib/meals";
 
 // Base values per 100g (mock)
 const BASE = {
