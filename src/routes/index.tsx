@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Upload, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { NutritionResults } from "@/components/NutritionResults";
 
 export const Route = createFileRoute("/")({
   component: Index,
