@@ -26,6 +26,27 @@ type Props = {
 
 export function NutritionResults({ imageUrl, onReset }: Props) {
   const [portion, setPortion] = useState(1);
+  const navigate = useNavigate();
+
+  const handleLog = () => {
+    addMeal({
+      id: crypto.randomUUID(),
+      name: "Margherita Pizza",
+      emoji: "🍕",
+      color: "#fed7aa",
+      imageUrl,
+      loggedAt: Date.now(),
+      calories: v.calories,
+      protein: v.protein,
+      carbs: v.carbs,
+      fat: v.fat,
+      fiber: v.fiber,
+      sugar: v.sugar,
+    });
+    toast.success("Meal logged", { description: "Added to today's history." });
+    navigate({ to: "/history" });
+  };
+
 
   const v = useMemo(() => {
     const r = (n: number, d = 0) => {
