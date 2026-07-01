@@ -16,14 +16,20 @@ const TRUST_BADGES = [
 ];
 
 function Index() {
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    const url = URL.createObjectURL(file);
-    setPreview(url);
+  const handleFile = useCallback((f: File) => {
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  }, []);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setPreview(null);
   }, []);
 
   const onDrop = (e: React.DragEvent) => {
