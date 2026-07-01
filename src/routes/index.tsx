@@ -59,8 +59,8 @@ function Index() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 pb-32 pt-12 sm:px-6 sm:pt-16 md:pb-20">
-        {preview ? (
-          <NutritionResults imageUrl={preview} onReset={() => setPreview(null)} />
+        {preview && file ? (
+          <NutritionResults imageFile={file} imageUrl={preview} onReset={reset} />
         ) : (
           <>
         {/* Hero */}
