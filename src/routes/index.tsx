@@ -16,14 +16,20 @@ const TRUST_BADGES = [
 ];
 
 function Index() {
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    const url = URL.createObjectURL(file);
-    setPreview(url);
+  const handleFile = useCallback((f: File) => {
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  }, []);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setPreview(null);
   }, []);
 
   const onDrop = (e: React.DragEvent) => {
@@ -53,8 +59,8 @@ function Index() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 pb-32 pt-12 sm:px-6 sm:pt-16 md:pb-20">
-        {preview ? (
-          <NutritionResults imageUrl={preview} onReset={() => setPreview(null)} />
+        {preview && file ? (
+          <NutritionResults imageFile={file} imageUrl={preview} onReset={reset} />
         ) : (
           <>
         {/* Hero */}
