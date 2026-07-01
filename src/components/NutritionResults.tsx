@@ -203,7 +203,7 @@ export function NutritionResults({ imageUrl, onReset }: Props) {
           <RotateCcw className="size-4" />
           Scan another
         </Button>
-        <Button size="lg" className="gap-2 shadow-sm">
+        <Button size="lg" className="gap-2 shadow-sm" onClick={handleLog}>
           <CheckCircle2 className="size-4" />
           Log this meal
         </Button>
