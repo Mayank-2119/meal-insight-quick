@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { Upload, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { NutritionResults } from "@/components/NutritionResults";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -51,7 +52,11 @@ function Index() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-32 pt-12 sm:px-6 sm:pt-20 md:pb-20">
+      <main className="mx-auto max-w-5xl px-4 pb-32 pt-12 sm:px-6 sm:pt-16 md:pb-20">
+        {preview ? (
+          <NutritionResults imageUrl={preview} onReset={() => setPreview(null)} />
+        ) : (
+          <>
         {/* Hero */}
         <section className="text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/80 px-4 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur-sm">
@@ -172,6 +177,8 @@ function Index() {
             ))}
           </div>
         </section>
+          </>
+        )}
       </main>
 
       {/* Mobile sticky CTA */}
