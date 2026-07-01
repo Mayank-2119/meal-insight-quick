@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Flame, Beef, Wheat, Droplet, Leaf, Candy, RotateCcw, CheckCircle2 } from "lucide-react";
 import { RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { addMeal } from "@/lib/meals";
 
 // Base values per 100g (mock)
 const BASE = {
@@ -23,6 +26,27 @@ type Props = {
 
 export function NutritionResults({ imageUrl, onReset }: Props) {
   const [portion, setPortion] = useState(1);
+  const navigate = useNavigate();
+
+  const handleLog = () => {
+    addMeal({
+      id: crypto.randomUUID(),
+      name: "Margherita Pizza",
+      emoji: "🍕",
+      color: "#fed7aa",
+      imageUrl,
+      loggedAt: Date.now(),
+      calories: v.calories,
+      protein: v.protein,
+      carbs: v.carbs,
+      fat: v.fat,
+      fiber: v.fiber,
+      sugar: v.sugar,
+    });
+    toast.success("Meal logged", { description: "Added to today's history." });
+    navigate({ to: "/history" });
+  };
+
 
   const v = useMemo(() => {
     const r = (n: number, d = 0) => {
@@ -179,7 +203,7 @@ export function NutritionResults({ imageUrl, onReset }: Props) {
           <RotateCcw className="size-4" />
           Scan another
         </Button>
-        <Button size="lg" className="gap-2 shadow-sm">
+        <Button size="lg" className="gap-2 shadow-sm" onClick={handleLog}>
           <CheckCircle2 className="size-4" />
           Log this meal
         </Button>
