@@ -40,15 +40,15 @@ function Index() {
       {/* Navbar */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-white/70 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <a href="/" className="flex items-center gap-1 text-lg font-semibold tracking-tight">
+          <Link to="/" className="flex items-center gap-1 text-lg font-semibold tracking-tight">
             NutriSnap <span aria-hidden>🥗</span>
-          </a>
-          <a
-            href="/history"
+          </Link>
+          <Link
+            to="/history"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             History
-          </a>
+          </Link>
         </nav>
       </header>
 
