@@ -178,6 +178,8 @@ function Index() {
             ))}
           </div>
         </section>
+          </>
+        )}
       </main>
 
       {/* Mobile sticky CTA */}
