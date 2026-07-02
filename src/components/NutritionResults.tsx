@@ -65,7 +65,7 @@ type Props = {
 };
 
 export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props) {
-  const [portion, setPortion] = useState(1);
+  const [portion, setPortion] = useState(2.5);
   const [data, setData] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
