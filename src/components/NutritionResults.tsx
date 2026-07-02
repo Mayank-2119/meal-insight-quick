@@ -201,9 +201,19 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
 
         <div className="space-y-6">
           <div className="rounded-3xl border border-border/60 bg-white p-6 shadow-xl shadow-primary/5">
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-center justify-between">
               <label className="text-sm font-semibold">Adjust portion size</label>
-              <span className="text-lg font-bold text-primary">{portion.toFixed(2)}x</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2.5 text-xs font-medium border-primary/30 text-primary hover:bg-primary/5 hover:text-primary"
+                  onClick={() => setPortion(2.5)}
+                >
+                  Typical serving
+                </Button>
+                <span className="text-lg font-bold text-primary">{portion.toFixed(2)}x</span>
+              </div>
             </div>
             <Slider
               className="mt-6"
