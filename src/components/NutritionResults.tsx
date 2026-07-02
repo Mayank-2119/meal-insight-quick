@@ -290,6 +290,10 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
         ))}
       </section>
 
+      <p className="mx-auto max-w-2xl text-center text-xs leading-relaxed text-muted-foreground">
+        Nutrition values are estimated per 100g of the identified food. Use the portion slider to adjust for your actual serving size.
+      </p>
+
       <section className="grid grid-cols-2 gap-4">
         <SecondaryCard label="Fiber" unit="g" value={v.fiber} icon={<Leaf className="size-4" />} />
         <SecondaryCard label="Sugar" unit="g" value={v.sugar} icon={<Candy className="size-4" />} />
