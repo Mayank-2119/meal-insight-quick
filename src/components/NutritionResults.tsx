@@ -10,11 +10,14 @@ import {
   RotateCcw,
   CheckCircle2,
   Loader2,
+  AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { addMeal } from "@/lib/meals";
 import { predictFood, type Prediction } from "@/lib/api";
@@ -58,9 +61,10 @@ type Props = {
   imageFile: File;
   imageUrl: string;
   onReset: () => void;
+  onDemo?: () => void;
 };
 
-export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
+export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props) {
   const [portion, setPortion] = useState(1);
   const [data, setData] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +74,6 @@ export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
 
   useEffect(() => {
     const id = ++reqIdRef.current;
-    // Only show the big spinner for the very first load
     if (data === null) setLoading(true);
     setError(null);
     predictFood(imageFile, portion)
@@ -83,38 +86,38 @@ export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
         if (reqIdRef.current !== id) return;
         setLoading(false);
         setError(err.message || "Prediction failed");
-        toast.error("Couldn't identify this food.", {
-          description: "Try a clearer photo.",
-          action: { label: "Retry", onClick: onReset },
-        });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageFile, portion]);
 
   if (loading && !data) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="relative">
-          <div className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
-          <div className="relative flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Loader2 className="size-7 animate-spin" />
-          </div>
-        </div>
-        <p className="mt-2 text-lg font-semibold">Analysing your meal…</p>
-        <p className="text-sm text-muted-foreground">Identifying food and estimating nutrition.</p>
-      </div>
-    );
+    return <LoadingSkeleton imageUrl={imageUrl} />;
   }
 
   if (error && !data) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-        <p className="text-lg font-semibold">Couldn't identify this food.</p>
-        <p className="text-sm text-muted-foreground">Try a clearer photo.</p>
-        <Button size="lg" onClick={onReset} className="mt-2 gap-2">
-          <RotateCcw className="size-4" />
-          Retry
-        </Button>
+      <div className="flex min-h-[60vh] items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-xl shadow-red-500/5">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+            <AlertCircle className="size-7" />
+          </div>
+          <h3 className="mt-5 text-lg font-bold">Couldn't identify this food.</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Try a clearer photo or better lighting.
+          </p>
+          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
+            <Button variant="outline" onClick={onReset} className="gap-2">
+              <RotateCcw className="size-4" />
+              Try Again
+            </Button>
+            {onDemo && (
+              <Button onClick={onDemo} className="gap-2">
+                <Sparkles className="size-4" />
+                Try Demo
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -167,8 +170,15 @@ export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
     navigate({ to: "/history" });
   };
 
+  const macros = [
+    { label: "Calories", unit: "kcal", value: v.calories, icon: <Flame className="size-5" />, tone: "amber" as const },
+    { label: "Protein", unit: "g", value: v.protein, icon: <Beef className="size-5" />, tone: "blue" as const },
+    { label: "Carbs", unit: "g", value: v.carbs, icon: <Wheat className="size-5" />, tone: "green" as const },
+    { label: "Fat", unit: "g", value: v.fat, icon: <Droplet className="size-5" />, tone: "red" as const },
+  ];
+
   return (
-    <div className={cn("space-y-8", loading && "opacity-70 transition-opacity")}>
+    <div className={cn("space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500", loading && "opacity-70 transition-opacity")}>
       {/* TOP SECTION */}
       <section className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
@@ -259,10 +269,15 @@ export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
       </section>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <MacroCard label="Calories" unit="kcal" value={v.calories} icon={<Flame className="size-5" />} tone="amber" />
-        <MacroCard label="Protein" unit="g" value={v.protein} icon={<Beef className="size-5" />} tone="blue" />
-        <MacroCard label="Carbs" unit="g" value={v.carbs} icon={<Wheat className="size-5" />} tone="green" />
-        <MacroCard label="Fat" unit="g" value={v.fat} icon={<Droplet className="size-5" />} tone="red" />
+        {macros.map((m, i) => (
+          <div
+            key={m.label}
+            className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
+            style={{ animationDelay: `${150 + i * 90}ms` }}
+          >
+            <MacroCard {...m} />
+          </div>
+        ))}
       </section>
 
       <section className="grid grid-cols-2 gap-4">
@@ -289,10 +304,50 @@ export function NutritionResults({ imageFile, imageUrl, onReset }: Props) {
   );
 }
 
+function LoadingSkeleton({ imageUrl }: { imageUrl: string }) {
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Loader2 className="size-6 animate-spin" />
+        </div>
+        <p className="text-lg font-semibold">Analysing your meal...</p>
+        <p className="text-sm text-muted-foreground">Identifying food and estimating nutrition.</p>
+      </div>
+
+      <section className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-3xl border border-border/60 bg-white shadow-xl shadow-primary/5">
+            <img src={imageUrl} alt="Uploaded meal" className="aspect-square w-full object-cover opacity-80" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-2/3" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </div>
+        <div className="space-y-6">
+          <Skeleton className="h-32 rounded-3xl" />
+          <Skeleton className="h-40 rounded-3xl" />
+        </div>
+      </section>
+
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-32 rounded-2xl" />
+        ))}
+      </section>
+
+      <section className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-16 rounded-2xl" />
+        <Skeleton className="h-16 rounded-2xl" />
+      </section>
+    </div>
+  );
+}
+
 function round1(n: number) {
   return Math.round(n * 10) / 10;
 }
-
 
 const TONES = {
   amber: { bg: "bg-amber-50", text: "text-amber-600", ring: "ring-amber-100" },
