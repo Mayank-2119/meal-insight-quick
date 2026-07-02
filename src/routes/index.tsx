@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
 });
 
 const TRUST_BADGES = [
-  { icon: "🎯", label: "92% Accuracy" },
+  { icon: "🎯", label: "82.4% Accuracy" },
   { icon: "⚡", label: "Instant Results" },
   { icon: "🥗", label: "101 Categories" },
 ];
