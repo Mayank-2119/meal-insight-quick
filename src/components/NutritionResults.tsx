@@ -68,27 +68,48 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
   const [portion, setPortion] = useState(2.5);
   const [data, setData] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const reqIdRef = useRef(0);
+  const fileRef = useRef<File>(imageFile);
+  const isFirstRun = useRef(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const id = ++reqIdRef.current;
-    if (data === null) setLoading(true);
-    setError(null);
-    predictFood(imageFile, portion)
-      .then((res) => {
-        if (reqIdRef.current !== id) return;
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err: Error) => {
-        if (reqIdRef.current !== id) return;
-        setLoading(false);
-        setError(err.message || "Prediction failed");
-      });
+    fileRef.current = imageFile;
+  }, [imageFile]);
+
+  useEffect(() => {
+    const runPredict = () => {
+      const id = ++reqIdRef.current;
+      if (data === null) setLoading(true);
+      else setRecalculating(true);
+      setError(null);
+      predictFood(fileRef.current, portion)
+        .then((res) => {
+          if (reqIdRef.current !== id) return;
+          setData(res);
+          setLoading(false);
+          setRecalculating(false);
+        })
+        .catch((err: Error) => {
+          if (reqIdRef.current !== id) return;
+          setLoading(false);
+          setRecalculating(false);
+          setError(err.message || "Prediction failed");
+        });
+    };
+
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      runPredict();
+      return;
+    }
+
+    const t = setTimeout(runPredict, 500);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageFile, portion]);
+  }, [portion, imageFile]);
 
   if (loading && !data) {
     return <LoadingSkeleton imageUrl={imageUrl} />;
@@ -226,9 +247,9 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>0.5x</span>
               <span className="text-sm font-medium text-foreground">
-                {loading ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Loader2 className="size-3 animate-spin" /> Updating…
+                {recalculating ? (
+                  <span className="inline-flex items-center gap-1.5 text-primary">
+                    <Loader2 className="size-3 animate-spin" /> Recalculating…
                   </span>
                 ) : (
                   `Estimating for ${grams}g`
@@ -278,14 +299,14 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <section className={cn("grid grid-cols-2 gap-4 sm:grid-cols-4 transition-opacity", recalculating && "opacity-60")}>
         {macros.map((m, i) => (
           <div
             key={m.label}
             className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
             style={{ animationDelay: `${150 + i * 90}ms` }}
           >
-            <MacroCard {...m} />
+            <MacroCard {...m} recalculating={recalculating} />
           </div>
         ))}
       </section>
@@ -382,6 +403,7 @@ function MacroCard({
   unit: string;
   icon: React.ReactNode;
   tone: keyof typeof TONES;
+  recalculating?: boolean;
 }) {
   const t = TONES[tone];
   return (
