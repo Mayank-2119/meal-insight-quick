@@ -299,14 +299,14 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <section className={cn("grid grid-cols-2 gap-4 sm:grid-cols-4 transition-opacity", recalculating && "opacity-60")}>
         {macros.map((m, i) => (
           <div
             key={m.label}
             className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
             style={{ animationDelay: `${150 + i * 90}ms` }}
           >
-            <MacroCard {...m} />
+            <MacroCard {...m} recalculating={recalculating} />
           </div>
         ))}
       </section>
