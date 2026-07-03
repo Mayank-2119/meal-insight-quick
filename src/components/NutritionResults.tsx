@@ -247,9 +247,9 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>0.5x</span>
               <span className="text-sm font-medium text-foreground">
-                {loading ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Loader2 className="size-3 animate-spin" /> Updating…
+                {recalculating ? (
+                  <span className="inline-flex items-center gap-1.5 text-primary">
+                    <Loader2 className="size-3 animate-spin" /> Recalculating…
                   </span>
                 ) : (
                   `Estimating for ${grams}g`
