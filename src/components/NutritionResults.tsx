@@ -73,6 +73,10 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualFood, setManualFood] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searching, setSearching] = useState(false);
   const reqIdRef = useRef(0);
   const fileRef = useRef<File>(imageFile);
   const isFirstRun = useRef(true);
@@ -88,19 +92,20 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
       if (data === null) setLoading(true);
       else setRecalculating(true);
       setError(null);
-      predictFood(fileRef.current, portion)
-        .then((res) => {
-          if (reqIdRef.current !== id) return;
-          setData(res);
-          setLoading(false);
-          setRecalculating(false);
-        })
-        .catch((err: Error) => {
-          if (reqIdRef.current !== id) return;
-          setLoading(false);
-          setRecalculating(false);
-          setError(err.message || "Prediction failed");
-        });
+      const p = manualFood
+        ? lookupNutrition(manualFood, portion)
+        : predictFood(fileRef.current, portion);
+      p.then((res) => {
+        if (reqIdRef.current !== id) return;
+        setData(manualFood ? { ...res, food_label: manualFood } : res);
+        setLoading(false);
+        setRecalculating(false);
+      }).catch((err: Error) => {
+        if (reqIdRef.current !== id) return;
+        setLoading(false);
+        setRecalculating(false);
+        setError(err.message || "Prediction failed");
+      });
     };
 
     if (isFirstRun.current) {
@@ -112,7 +117,30 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
     const t = setTimeout(runPredict, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portion, imageFile]);
+  }, [portion, imageFile, manualFood]);
+
+  const handleSearch = async () => {
+    const q = searchInput.trim();
+    if (!q) return;
+    setSearching(true);
+    setRecalculating(true);
+    const id = ++reqIdRef.current;
+    try {
+      const res = await lookupNutrition(q, portion);
+      if (reqIdRef.current !== id) return;
+      setData({ ...res, food_label: q });
+      setManualFood(q);
+      setShowSearch(false);
+      setSearchInput("");
+      toast.success("Updated", { description: `Showing nutrition for ${q}.` });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Lookup failed";
+      toast.error("Couldn't find that food", { description: msg });
+    } finally {
+      setSearching(false);
+      setRecalculating(false);
+    }
+  };
 
   if (loading && !data) {
     return <LoadingSkeleton imageUrl={imageUrl} />;
