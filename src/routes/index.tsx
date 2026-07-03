@@ -6,8 +6,18 @@ import { cn } from "@/lib/utils";
 import { NutritionResults } from "@/components/NutritionResults";
 import demoPizza from "@/assets/demo-pizza.jpg";
 
+const OG_IMAGE = "https://meal-insight-quick.lovable.app/og-image.jpg";
+
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:image", content: OG_IMAGE },
+    ],
+  }),
 });
 
 const TRUST_BADGES = [
