@@ -12,15 +12,18 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
+  Pencil,
+  Search,
 } from "lucide-react";
 import { RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { addMeal } from "@/lib/meals";
-import { predictFood, type Prediction } from "@/lib/api";
+import { predictFood, lookupNutrition, type Prediction } from "@/lib/api";
 
 const FOOD_EMOJI: Record<string, string> = {
   pizza: "🍕",
