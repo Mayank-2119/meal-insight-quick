@@ -240,14 +240,57 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{foodName}</h2>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <CheckCircle2 className="size-3.5" />
-                {confidencePct}% confident
-              </span>
+              {manualFood ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-100">
+                  <Pencil className="size-3.5" />
+                  manually corrected
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <CheckCircle2 className="size-3.5" />
+                  {confidencePct}% confident
+                </span>
+              )}
             </div>
-            {alternates && (
+            {!manualFood && alternates && (
               <p className="mt-2 text-sm text-muted-foreground">Could also be: {alternates}</p>
             )}
+            <div className="mt-3">
+              {!showSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSearch(true)}
+                  className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Not right?
+                </button>
+              ) : (
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    autoFocus
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSearch();
+                      }
+                    }}
+                    placeholder="Type food name e.g. banana, coca cola, roti..."
+                    className="flex-1"
+                    disabled={searching}
+                  />
+                  <Button
+                    onClick={handleSearch}
+                    disabled={searching || !searchInput.trim()}
+                    className="gap-2 shrink-0"
+                  >
+                    {searching ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
+                    Search
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
