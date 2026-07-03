@@ -68,27 +68,48 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
   const [portion, setPortion] = useState(2.5);
   const [data, setData] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const reqIdRef = useRef(0);
+  const fileRef = useRef<File>(imageFile);
+  const isFirstRun = useRef(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const id = ++reqIdRef.current;
-    if (data === null) setLoading(true);
-    setError(null);
-    predictFood(imageFile, portion)
-      .then((res) => {
-        if (reqIdRef.current !== id) return;
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err: Error) => {
-        if (reqIdRef.current !== id) return;
-        setLoading(false);
-        setError(err.message || "Prediction failed");
-      });
+    fileRef.current = imageFile;
+  }, [imageFile]);
+
+  useEffect(() => {
+    const runPredict = () => {
+      const id = ++reqIdRef.current;
+      if (data === null) setLoading(true);
+      else setRecalculating(true);
+      setError(null);
+      predictFood(fileRef.current, portion)
+        .then((res) => {
+          if (reqIdRef.current !== id) return;
+          setData(res);
+          setLoading(false);
+          setRecalculating(false);
+        })
+        .catch((err: Error) => {
+          if (reqIdRef.current !== id) return;
+          setLoading(false);
+          setRecalculating(false);
+          setError(err.message || "Prediction failed");
+        });
+    };
+
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      runPredict();
+      return;
+    }
+
+    const t = setTimeout(runPredict, 500);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageFile, portion]);
+  }, [portion, imageFile]);
 
   if (loading && !data) {
     return <LoadingSkeleton imageUrl={imageUrl} />;
