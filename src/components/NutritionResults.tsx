@@ -403,6 +403,7 @@ function MacroCard({
   unit: string;
   icon: React.ReactNode;
   tone: keyof typeof TONES;
+  recalculating?: boolean;
 }) {
   const t = TONES[tone];
   return (
