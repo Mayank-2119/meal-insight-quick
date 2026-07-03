@@ -33,3 +33,20 @@ export async function predictFood(imageFile: File, portion: number = 1.0): Promi
 
   return response.json();
 }
+
+export async function lookupNutrition(food: string, portion: number = 1.0): Promise<Prediction> {
+  const url = `${API_BASE}/nutrition?food=${encodeURIComponent(food)}&portion=${portion}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.detail || "Nutrition lookup failed");
+  }
+  const raw = await response.json();
+  return {
+    food_label: raw.food_label ?? food,
+    confidence: raw.confidence ?? 1,
+    top3: raw.top3 ?? [],
+    nutrition: raw.nutrition ?? raw,
+    health_score: raw.health_score ?? 0,
+  };
+}

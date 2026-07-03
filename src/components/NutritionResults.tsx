@@ -12,15 +12,18 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
+  Pencil,
+  Search,
 } from "lucide-react";
 import { RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { addMeal } from "@/lib/meals";
-import { predictFood, type Prediction } from "@/lib/api";
+import { predictFood, lookupNutrition, type Prediction } from "@/lib/api";
 
 const FOOD_EMOJI: Record<string, string> = {
   pizza: "🍕",
@@ -70,6 +73,10 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualFood, setManualFood] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searching, setSearching] = useState(false);
   const reqIdRef = useRef(0);
   const fileRef = useRef<File>(imageFile);
   const isFirstRun = useRef(true);
@@ -85,19 +92,20 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
       if (data === null) setLoading(true);
       else setRecalculating(true);
       setError(null);
-      predictFood(fileRef.current, portion)
-        .then((res) => {
-          if (reqIdRef.current !== id) return;
-          setData(res);
-          setLoading(false);
-          setRecalculating(false);
-        })
-        .catch((err: Error) => {
-          if (reqIdRef.current !== id) return;
-          setLoading(false);
-          setRecalculating(false);
-          setError(err.message || "Prediction failed");
-        });
+      const p = manualFood
+        ? lookupNutrition(manualFood, portion)
+        : predictFood(fileRef.current, portion);
+      p.then((res) => {
+        if (reqIdRef.current !== id) return;
+        setData(manualFood ? { ...res, food_label: manualFood } : res);
+        setLoading(false);
+        setRecalculating(false);
+      }).catch((err: Error) => {
+        if (reqIdRef.current !== id) return;
+        setLoading(false);
+        setRecalculating(false);
+        setError(err.message || "Prediction failed");
+      });
     };
 
     if (isFirstRun.current) {
@@ -109,7 +117,30 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
     const t = setTimeout(runPredict, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portion, imageFile]);
+  }, [portion, imageFile, manualFood]);
+
+  const handleSearch = async () => {
+    const q = searchInput.trim();
+    if (!q) return;
+    setSearching(true);
+    setRecalculating(true);
+    const id = ++reqIdRef.current;
+    try {
+      const res = await lookupNutrition(q, portion);
+      if (reqIdRef.current !== id) return;
+      setData({ ...res, food_label: q });
+      setManualFood(q);
+      setShowSearch(false);
+      setSearchInput("");
+      toast.success("Updated", { description: `Showing nutrition for ${q}.` });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Lookup failed";
+      toast.error("Couldn't find that food", { description: msg });
+    } finally {
+      setSearching(false);
+      setRecalculating(false);
+    }
+  };
 
   if (loading && !data) {
     return <LoadingSkeleton imageUrl={imageUrl} />;
@@ -209,14 +240,57 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{foodName}</h2>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <CheckCircle2 className="size-3.5" />
-                {confidencePct}% confident
-              </span>
+              {manualFood ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-100">
+                  <Pencil className="size-3.5" />
+                  manually corrected
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <CheckCircle2 className="size-3.5" />
+                  {confidencePct}% confident
+                </span>
+              )}
             </div>
-            {alternates && (
+            {!manualFood && alternates && (
               <p className="mt-2 text-sm text-muted-foreground">Could also be: {alternates}</p>
             )}
+            <div className="mt-3">
+              {!showSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSearch(true)}
+                  className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Not right?
+                </button>
+              ) : (
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    autoFocus
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSearch();
+                      }
+                    }}
+                    placeholder="Type food name e.g. banana, coca cola, roti..."
+                    className="flex-1"
+                    disabled={searching}
+                  />
+                  <Button
+                    onClick={handleSearch}
+                    disabled={searching || !searchInput.trim()}
+                    className="gap-2 shrink-0"
+                  >
+                    {searching ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
+                    Search
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
