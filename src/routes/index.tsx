@@ -106,10 +106,23 @@ function Index() {
                 AI Powered • 101 Food Categories
               </div>
 
+              <div
+                aria-hidden
+                className="mb-4 flex h-14 items-center justify-center text-5xl sm:text-6xl"
+              >
+                <span
+                  key={emojiIdx}
+                  className="inline-block"
+                  style={{ animation: "emoji-fade 2s ease-in-out" }}
+                >
+                  {FOOD_EMOJIS[emojiIdx]}
+                </span>
+              </div>
+
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
                 Snap your meal, <br className="hidden sm:block" />
                 know your{" "}
-                <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#16A34A] to-[#4ADE80] bg-clip-text text-transparent">
                   macros
                 </span>
               </h1>
