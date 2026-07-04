@@ -26,6 +26,8 @@ const TRUST_BADGES = [
   { icon: "🥗", label: "101 Categories" },
 ];
 
+const FOOD_EMOJIS = ["🍕", "🥗", "🍜", "🍱", "🥘", "🍛"];
+
 function Index() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
