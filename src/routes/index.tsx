@@ -136,14 +136,15 @@ function Index() {
             <section className="mt-12 sm:mt-14">
               <div
                 className={cn(
-                  "rounded-3xl border border-border/60 bg-white p-1 shadow-xl shadow-primary/5 transition-all",
+                  "group rounded-3xl border border-border/60 bg-white p-1 shadow-xl shadow-primary/5 transition-all",
+                  !dragActive && "animate-upload-glow hover:[animation:none]",
                   dragActive && "scale-[1.01] shadow-2xl shadow-primary/10",
                 )}
               >
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-2 border-dashed border-primary/40 bg-white transition-colors",
-                    dragActive && "border-primary bg-primary/[0.02]",
+                    "rounded-[1.25rem] border-2 border-dashed border-primary/40 bg-white transition-colors group-hover:border-primary group-hover:border-solid",
+                    dragActive && "border-primary border-solid bg-primary/[0.02]",
                   )}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -157,7 +158,7 @@ function Index() {
                     onClick={openUpload}
                     className="flex w-full cursor-pointer flex-col items-center justify-center gap-5 px-6 py-14 text-center sm:py-20"
                   >
-                    <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary animate-icon-bounce">
                       <Upload className="size-7" />
                     </div>
                     <div>
