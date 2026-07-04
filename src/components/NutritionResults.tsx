@@ -355,10 +355,15 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
         {macros.map((m, i) => (
           <div
             key={m.label}
-            className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
-            style={{ animationDelay: `${150 + i * 90}ms` }}
+            className="animate-in fade-in slide-in-from-bottom-5 fill-mode-backwards duration-500"
+            style={{ animationDelay: `${i * 100}ms` }}
           >
-            <MacroCard {...m} recalculating={recalculating} />
+            <MacroCard
+              {...m}
+              recalculating={recalculating}
+              enterDelayMs={i * 100}
+              shimmerDelayMs={500 + i * 100}
+            />
           </div>
         ))}
       </section>
