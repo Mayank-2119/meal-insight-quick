@@ -34,6 +34,15 @@ function Index() {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [emojiIdx, setEmojiIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setEmojiIdx((i) => (i + 1) % FOOD_EMOJIS.length);
+    }, 2000);
+    return () => clearInterval(id);
+  }, []);
+
 
   const handleFile = useCallback((f: File) => {
     setFile(f);
