@@ -234,10 +234,12 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
       {/* TOP SECTION */}
       <section className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-3xl border border-border/60 bg-white shadow-xl shadow-primary/5">
+          <div
+            className="overflow-hidden rounded-3xl border border-border/60 bg-white shadow-xl shadow-primary/5 animate-in fade-in zoom-in-95 duration-[400ms] ease-out"
+          >
             <img src={imageUrl} alt="Detected meal" className="aspect-square w-full object-cover" />
           </div>
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-4 duration-500 fill-mode-backwards [animation-delay:300ms]">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{foodName}</h2>
               {manualFood ? (
