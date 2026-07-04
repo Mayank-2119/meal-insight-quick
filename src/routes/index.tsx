@@ -221,10 +221,11 @@ function Index() {
 
               {/* Trust badges */}
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                {TRUST_BADGES.map((badge) => (
+                {TRUST_BADGES.map((badge, i) => (
                   <div
                     key={badge.label}
-                    className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-4 py-2 text-sm font-medium text-foreground opacity-0 shadow-sm backdrop-blur-sm animate-trust-in"
+                    style={{ animationDelay: `${400 + i * 150}ms` }}
                   >
                     <span aria-hidden>{badge.icon}</span>
                     {badge.label}
