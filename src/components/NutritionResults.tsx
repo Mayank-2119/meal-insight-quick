@@ -454,6 +454,8 @@ function MacroCard({
   unit,
   icon,
   tone,
+  enterDelayMs = 0,
+  shimmerDelayMs = 0,
 }: {
   label: string;
   value: number;
@@ -461,10 +463,15 @@ function MacroCard({
   icon: React.ReactNode;
   tone: keyof typeof TONES;
   recalculating?: boolean;
+  enterDelayMs?: number;
+  shimmerDelayMs?: number;
 }) {
   const t = TONES[tone];
+  const decimals = unit === "kcal" ? 0 : 1;
+  const animated = useAnimatedNumber(value, { duration: 800, initialDelayMs: enterDelayMs });
+  const display = decimals === 0 ? Math.round(animated) : (Math.round(animated * 10) / 10).toFixed(1);
   return (
-    <div className="rounded-2xl border border-border/60 bg-white p-5 shadow-lg shadow-primary/5 transition-transform hover:-translate-y-0.5">
+    <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white p-5 shadow-lg shadow-primary/5 transition-transform hover:-translate-y-0.5">
       <div className={cn("inline-flex size-9 items-center justify-center rounded-xl ring-4", t.bg, t.text, t.ring)}>
         {icon}
       </div>
@@ -472,11 +479,92 @@ function MacroCard({
         {label}
       </p>
       <p className="mt-1 flex items-baseline gap-1">
-        <span className="text-2xl font-extrabold tracking-tight sm:text-3xl">{value}</span>
+        <span className="text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl">{display}</span>
         <span className="text-xs font-medium text-muted-foreground">{unit}</span>
       </p>
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 card-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent"
+        style={{ animationDelay: `${shimmerDelayMs}ms` }}
+      />
     </div>
   );
+}
+
+function HealthScoreRing({ score, color }: { score: number; color: string }) {
+  const animated = useAnimatedNumber(score, { duration: 1000 });
+  const data = useMemo(() => [{ name: "score", value: animated, fill: color }], [animated, color]);
+  return (
+    <div className="relative size-28 shrink-0">
+      <RadialBarChart
+        width={112}
+        height={112}
+        cx={56}
+        cy={56}
+        innerRadius={44}
+        outerRadius={56}
+        barSize={12}
+        startAngle={90}
+        endAngle={-270}
+        data={data}
+      >
+        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+        <RadialBar background={{ fill: "hsl(0 0% 94%)" }} dataKey="value" cornerRadius={999} isAnimationActive={false} />
+      </RadialBarChart>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-extrabold tabular-nums" style={{ color }}>
+          {Math.round(animated)}
+        </span>
+        <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          / 100
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function useAnimatedNumber(
+  target: number,
+  { duration = 800, initialDelayMs = 0 }: { duration?: number; initialDelayMs?: number } = {},
+) {
+  const [value, setValue] = useState(0);
+  const valueRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(() => {
+    const from = valueRef.current;
+    const to = target;
+    if (from === to) return;
+    let start: number | null = null;
+    const run = () => {
+      const tick = (t: number) => {
+        if (start === null) start = t;
+        const p = Math.min(1, (t - start) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const next = from + (to - from) * eased;
+        setValue(next);
+        if (p < 1) rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    if (initialDelayMs > 0) {
+      timeoutRef.current = setTimeout(run, initialDelayMs);
+    } else {
+      run();
+    }
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, duration]);
+
+  return value;
 }
 
 function SecondaryCard({
