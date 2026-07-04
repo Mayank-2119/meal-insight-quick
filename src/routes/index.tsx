@@ -75,7 +75,7 @@ function Index() {
   const openUpload = () => fileInputRef.current?.click();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#f0fdf4] via-white to-white text-foreground">
+    <div className="flex min-h-screen flex-col animate-hero-gradient text-foreground">
       {/* Navbar */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-white/70 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
