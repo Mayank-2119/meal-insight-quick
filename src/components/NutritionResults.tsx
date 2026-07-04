@@ -336,31 +336,18 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
           </div>
 
           <div className="flex items-center gap-5 rounded-3xl border border-border/60 bg-white p-6 shadow-xl shadow-primary/5">
-            <div className="relative size-28 shrink-0">
-              <RadialBarChart
-                width={112}
-                height={112}
-                cx={56}
-                cy={56}
-                innerRadius={44}
-                outerRadius={56}
-                barSize={12}
-                startAngle={90}
-                endAngle={-270}
-                data={[{ name: "score", value: score, fill: scoreColor }]}
-              >
-                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-                <RadialBar background={{ fill: "hsl(0 0% 94%)" }} dataKey="value" cornerRadius={999} />
-              </RadialBarChart>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-extrabold" style={{ color: scoreColor }}>
-                  {score}
-                </span>
-                <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                  / 100
-                </span>
-              </div>
+            <HealthScoreRing score={score} color={scoreColor} />
+            <div>
+              <p className="text-sm font-semibold">Health Score</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {score > 70
+                  ? "Great choice — nutrient-dense and balanced."
+                  : score >= 40
+                    ? "Balanced meal, enjoy in moderation."
+                    : "Consider pairing with something lighter."}
+              </p>
             </div>
+          </div>
             <div>
               <p className="text-sm font-semibold">Health Score</p>
               <p className="mt-1 text-sm text-muted-foreground">
