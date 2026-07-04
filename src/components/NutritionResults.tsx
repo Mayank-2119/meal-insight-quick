@@ -348,17 +348,6 @@ export function NutritionResults({ imageFile, imageUrl, onReset, onDemo }: Props
               </p>
             </div>
           </div>
-            <div>
-              <p className="text-sm font-semibold">Health Score</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {score > 70
-                  ? "Great choice — nutrient-dense and balanced."
-                  : score >= 40
-                    ? "Balanced meal, enjoy in moderation."
-                    : "Consider pairing with something lighter."}
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
