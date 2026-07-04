@@ -144,3 +144,44 @@
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   }
 }
+
+@keyframes hero-gradient-shift {
+  0%, 100% { background-color: #f0fdf4; }
+  50% { background-color: #dcfce7; }
+}
+
+@keyframes upload-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.25), 0 0 0 0 rgba(74, 222, 128, 0.15); }
+  50% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0.12), 0 0 32px 4px rgba(74, 222, 128, 0.25); }
+}
+
+@keyframes icon-bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes emoji-fade {
+  0%, 100% { opacity: 0; transform: translateY(4px) scale(0.9); }
+  15%, 85% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes trust-badge-in {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-hero-gradient {
+  animation: hero-gradient-shift 8s ease-in-out infinite;
+}
+
+@utility animate-upload-glow {
+  animation: upload-glow-pulse 2.4s ease-in-out infinite;
+}
+
+@utility animate-icon-bounce {
+  animation: icon-bounce-slow 2s ease-in-out infinite;
+}
+
+@utility animate-trust-in {
+  animation: trust-badge-in 0.6s ease-out both;
+}

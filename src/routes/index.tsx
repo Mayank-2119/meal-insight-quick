@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Upload, Camera, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,12 +26,23 @@ const TRUST_BADGES = [
   { icon: "🥗", label: "101 Categories" },
 ];
 
+const FOOD_EMOJIS = ["🍕", "🥗", "🍜", "🍱", "🥘", "🍛"];
+
 function Index() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [emojiIdx, setEmojiIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setEmojiIdx((i) => (i + 1) % FOOD_EMOJIS.length);
+    }, 2000);
+    return () => clearInterval(id);
+  }, []);
+
 
   const handleFile = useCallback((f: File) => {
     setFile(f);
@@ -64,7 +75,7 @@ function Index() {
   const openUpload = () => fileInputRef.current?.click();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#f0fdf4] via-white to-white text-foreground">
+    <div className="flex min-h-screen flex-col animate-hero-gradient text-foreground">
       {/* Navbar */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-white/70 backdrop-blur-xl">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -95,10 +106,23 @@ function Index() {
                 AI Powered • 101 Food Categories
               </div>
 
+              <div
+                aria-hidden
+                className="mb-4 flex h-14 items-center justify-center text-5xl sm:text-6xl"
+              >
+                <span
+                  key={emojiIdx}
+                  className="inline-block"
+                  style={{ animation: "emoji-fade 2s ease-in-out" }}
+                >
+                  {FOOD_EMOJIS[emojiIdx]}
+                </span>
+              </div>
+
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
                 Snap your meal, <br className="hidden sm:block" />
                 know your{" "}
-                <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#16A34A] to-[#4ADE80] bg-clip-text text-transparent">
                   macros
                 </span>
               </h1>
@@ -112,14 +136,15 @@ function Index() {
             <section className="mt-12 sm:mt-14">
               <div
                 className={cn(
-                  "rounded-3xl border border-border/60 bg-white p-1 shadow-xl shadow-primary/5 transition-all",
+                  "group rounded-3xl border border-border/60 bg-white p-1 shadow-xl shadow-primary/5 transition-all",
+                  !dragActive && "animate-upload-glow hover:[animation:none]",
                   dragActive && "scale-[1.01] shadow-2xl shadow-primary/10",
                 )}
               >
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-2 border-dashed border-primary/40 bg-white transition-colors",
-                    dragActive && "border-primary bg-primary/[0.02]",
+                    "rounded-[1.25rem] border-2 border-dashed border-primary/40 bg-white transition-colors group-hover:border-primary group-hover:border-solid",
+                    dragActive && "border-primary border-solid bg-primary/[0.02]",
                   )}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -133,7 +158,7 @@ function Index() {
                     onClick={openUpload}
                     className="flex w-full cursor-pointer flex-col items-center justify-center gap-5 px-6 py-14 text-center sm:py-20"
                   >
-                    <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary animate-icon-bounce">
                       <Upload className="size-7" />
                     </div>
                     <div>
@@ -196,10 +221,11 @@ function Index() {
 
               {/* Trust badges */}
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                {TRUST_BADGES.map((badge) => (
+                {TRUST_BADGES.map((badge, i) => (
                   <div
                     key={badge.label}
-                    className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-4 py-2 text-sm font-medium text-foreground opacity-0 shadow-sm backdrop-blur-sm animate-trust-in"
+                    style={{ animationDelay: `${400 + i * 150}ms` }}
                   >
                     <span aria-hidden>{badge.icon}</span>
                     {badge.label}
